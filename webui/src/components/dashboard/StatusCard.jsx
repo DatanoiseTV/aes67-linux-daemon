@@ -1,21 +1,10 @@
 import React from 'react';
 
-const defaultStyle = {
-  background: 'var(--bg-surface)',
-  border: '1px solid var(--border)',
-};
-
-const successStyle = {
-  background: 'linear-gradient(135deg, #0c1a0c, #0f1f0f)',
-  border: '1px solid #1a3a1a',
-};
-
 export default function StatusCard({ title, value, subtitle, details = [], variant = 'default', indicator, children }) {
   const isSuccess = variant === 'success';
-  const cardStyle = isSuccess ? successStyle : defaultStyle;
 
   return (
-    <div className="status-card" style={cardStyle}>
+    <div className={`status-card ${isSuccess ? 'status-card--success' : ''}`}>
       <div className="status-card__header">
         <span className="status-card__title">{title}</span>
         {indicator && (

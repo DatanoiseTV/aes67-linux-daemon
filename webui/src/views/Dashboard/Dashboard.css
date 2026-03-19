@@ -18,6 +18,14 @@
   border-radius: 6px;
   padding: 1.25rem;
   position: relative;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+}
+
+/* Success variant — same as default, status shown via indicator dot */
+.status-card--success {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
 }
 
 .status-card__header {
