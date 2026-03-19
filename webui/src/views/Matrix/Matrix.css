@@ -252,7 +252,7 @@
 }
 
 .grp-alt .xp-cell {
-  background: rgba(255, 255, 255, 0.008);
+  background: var(--bg-raised);
 }
 
 /* Crosspoint cell */
@@ -275,7 +275,7 @@
 }
 
 .in-ch-row:hover .col-hl {
-  background: rgba(74, 144, 226, 0.04);
+  background: var(--accent-glow);
 }
 
 /* Crosspoint node */
@@ -283,8 +283,8 @@
   width: 24px;
   height: 24px;
   border-radius: 5px;
-  background: var(--route-off-bg, rgba(255, 255, 255, 0.02));
-  border: 1px solid var(--route-off-border, rgba(255, 255, 255, 0.06));
+  background: var(--bg-raised);
+  border: 1px solid var(--border-strong);
   cursor: pointer;
   transition: all 0.1s;
   display: inline-flex;
@@ -295,8 +295,8 @@
 }
 
 .xp-node:hover {
-  border-color: rgba(74, 144, 226, 0.3);
-  background: rgba(74, 144, 226, 0.08);
+  border-color: var(--accent);
+  background: var(--accent-glow);
   transform: scale(1.1);
   box-shadow: 0 0 8px var(--accent-glow);
 }
