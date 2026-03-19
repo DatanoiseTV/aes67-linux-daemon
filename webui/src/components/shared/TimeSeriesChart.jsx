@@ -3,10 +3,32 @@ import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
 import './TimeSeriesChart.css';
 
+function getThemeColors() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    axisStroke: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.25)',
+    gridStroke: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.06)',
+    tickStroke: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)',
+    fontColor:  isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.5)',
+  };
+}
+
 export default function TimeSeriesChart({ title, data, series = [], height = 200, unit = '' }) {
   const wrapRef = useRef(null);
   const chartRef = useRef(null);
   const [w, setW] = useState(600);
+
+  // Track theme changes to recreate chart with correct colors
+  const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'light');
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const t = document.documentElement.getAttribute('data-theme') || 'light';
+      setTheme(t);
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
 
   // Track container width
   useEffect(() => {
@@ -21,22 +43,21 @@ export default function TimeSeriesChart({ title, data, series = [], height = 200
     return () => ro.disconnect();
   }, []);
 
-  // Has enough data to render?
   const hasData = data && data[0] && data[0].length >= 2;
 
-  // Create chart when we first get data, or when dimensions/series change
+  // Create chart — recreate on theme change, size change, or series change
   useEffect(() => {
     if (!hasData || !wrapRef.current) return;
 
-    // Destroy previous
     if (chartRef.current) {
       chartRef.current.destroy();
       chartRef.current = null;
     }
 
-    // Clear container
     const container = wrapRef.current;
     while (container.firstChild) container.removeChild(container.firstChild);
+
+    const colors = getThemeColors();
 
     const uSeries = [
       { label: 'Time' },
@@ -48,6 +69,12 @@ export default function TimeSeriesChart({ title, data, series = [], height = 200
           }))
         : [{ label: 'Value', stroke: '#4a90e2', width: 1.5 }]),
     ];
+
+    const axisConfig = {
+      stroke: colors.axisStroke,
+      grid: { stroke: colors.gridStroke, width: 1 },
+      ticks: { stroke: colors.tickStroke, width: 1, size: 4 },
+    };
 
     const opts = {
       width: w,
@@ -64,21 +91,8 @@ export default function TimeSeriesChart({ title, data, series = [], height = 200
         }},
       },
       axes: [
-        {
-          stroke: 'rgba(255,255,255,0.15)',
-          grid: { stroke: 'rgba(255,255,255,0.04)', width: 1 },
-          ticks: { stroke: 'rgba(255,255,255,0.06)', width: 1, size: 4 },
-          font: '10px Inter, system-ui, sans-serif',
-          gap: 6,
-        },
-        {
-          stroke: 'rgba(255,255,255,0.15)',
-          grid: { stroke: 'rgba(255,255,255,0.04)', width: 1 },
-          ticks: { stroke: 'rgba(255,255,255,0.06)', width: 1, size: 4 },
-          font: '10px JetBrains Mono, monospace',
-          gap: 8,
-          size: 50,
-        },
+        { ...axisConfig, font: `10px Inter, system-ui, sans-serif`, gap: 6 },
+        { ...axisConfig, font: `10px JetBrains Mono, monospace`, gap: 8, size: 50 },
       ],
       series: uSeries,
     };
@@ -91,7 +105,7 @@ export default function TimeSeriesChart({ title, data, series = [], height = 200
         chartRef.current = null;
       }
     };
-  }, [hasData, w, height, series.length]);
+  }, [hasData, w, height, series.length, theme]);
 
   // Update data on existing chart
   useEffect(() => {
